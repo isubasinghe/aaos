@@ -1,0 +1,59 @@
+clang
+%h -x c-header
+%c -std=c99
+
+# ARMv8/AArch64 target used by the generated Hake build.
+--target=aarch64-linux-gnu
+-mcpu=cortex-a57
+-march=armv8-a
+-mstrict-align
+-ffixed-x18
+
+# Barrelfish is freestanding and supplies its own C library headers.
+-ffreestanding
+-fno-builtin
+-fno-stack-protector
+-nostdinc
+-U__linux__
+-Ulinux
+
+# Defines shared by the ARMv8 kernel and user-space build rules.
+-D__ARM_CORTEX__
+-D__ARM_ARCH_8A__
+-DBARRELFISH
+-DBF_BINARY_PREFIX=""
+-DCONFIG_SVM
+-DUSE_KALUGA_DVM
+-DCONFIG_INTERCONNECT_DRIVER_LMP
+-DCONFIG_INTERCONNECT_DRIVER_UMP
+-DCONFIG_INTERCONNECT_DRIVER_MULTIHOP
+-DCONFIG_INTERCONNECT_DRIVER_LOCAL
+-DCONFIG_FLOUNDER_BACKEND_LMP
+-DCONFIG_FLOUNDER_BACKEND_UMP
+-DCONFIG_FLOUNDER_BACKEND_MULTIHOP
+-DCONFIG_FLOUNDER_BACKEND_LOCAL
+
+# Kernel-specific settings used by the ARMv8 build.  These also keep kernel
+# headers on their kernel-side definitions when ccls indexes the whole tree.
+-DIN_KERNEL
+-DPREFER_SIZE_OVER_SPEED
+-DCONFIG_SCHEDULER_RBED
+-DCONFIG_TIMESLICE=80
+
+# Clang-only noise from the GCC-oriented generated headers and inline asm.
+-Wno-asm-operand-widths
+-Wno-pragma-pack
+-Wno-format
+
+# Generated ARMv8 headers must take precedence over source-tree headers.
+-Ibuild/armv8/include
+-Ikernel/include/arch/armv8
+-Ikernel/include/arch/aarch64
+-Ikernel/include
+-Iinclude
+-Iinclude/arch/aarch64
+-Iinclude/target/aarch64
+
+# Hake's build rules force-include this compatibility macro header.
+-imacros
+include/deputy/nodeputy.h
